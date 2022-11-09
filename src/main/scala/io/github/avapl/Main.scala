@@ -1,8 +1,12 @@
 package io.github.avapl
 
+import cats.Parallel
 import cats.effect.{ExitCode, IO, IOApp}
 import doobie.Transactor
-import io.github.avapl.repository.postgres.{PostgresAccountRepository, PostgresPointsRepository}
+import io.github.avapl.repository.postgres.{
+  PostgresAccountRepository,
+  PostgresPointsRepository
+}
 import io.github.avapl.service.AccountManagementService
 
 import java.util.UUID
@@ -26,15 +30,13 @@ object Main extends IOApp {
     val userId = UUID.randomUUID()
     println(s"userId = $userId")
 
-    IO.parSequenceN(4)(
-      addFundsRepetitively(userId)
-    ).map(_ => ExitCode.Success)
+    IO
+      .parReplicateAN(
+        n = 4 // set parallelism degree to 4
+      )(
+        1000, // repeat 1000 times
+        accountManagementService.addFunds(userId, 10)
+      )
+      .map(_ => ExitCode.Success)
   }
-
-  private def addFundsRepetitively(userId: UUID): Seq[IO[Unit]] =
-    for {
-      _ <- 1 to 1000
-    } yield for {
-      _ <- accountManagementService.addFunds(userId, 10)
-    } yield ()
 }
