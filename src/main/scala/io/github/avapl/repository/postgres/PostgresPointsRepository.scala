@@ -8,28 +8,24 @@ import io.github.avapl.repository.PointsRepository
 
 import java.util.UUID
 
-class PostgresPointsRepository(xa: Transactor[IO]) extends PointsRepository {
+class PostgresPointsRepository extends PointsRepository {
 
-  override def getPoints(userId: UUID): IO[Option[Int]] =
-    getPointsConnectionIO(userId).transact(xa)
+  override def getPoints(userId: UUID): ConnectionIO[Option[Int]] =
+    getPointsConnectionIO(userId)
 
   private def getPointsConnectionIO(userId: UUID): ConnectionIO[Option[Int]] =
     sql"select points from points where user_id = $userId"
       .query[Int]
       .option
 
-  override def incrementPoints(userId: UUID): IO[Unit] = {
+  override def incrementPoints(userId: UUID): ConnectionIO[Unit] = 
     for {
       currentPoints <- getPointsConnectionIO(userId)
       newPoints = currentPoints.getOrElse(0) + 1
       _ <- setPointsConnectionIO(userId, newPoints)
     } yield ()
-  }.transact(xa)
 
-  private def setPointsConnectionIO(
-      userId: UUID,
-      points: Int
-  ): ConnectionIO[Int] =
+  private def setPointsConnectionIO(userId: UUID, points: Int): ConnectionIO[Int] =
     sql"""
       insert into points values ($userId, $points)
       on conflict (user_id)

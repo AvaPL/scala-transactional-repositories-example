@@ -22,9 +22,9 @@ object Main extends IOApp {
   )
   val accountManagementService: AccountManagementService =
     AccountManagementService(
-      accountRepository = PostgresAccountRepository(xa),
-      pointsRepository = PostgresPointsRepository(xa)
-    )
+      accountRepository = PostgresAccountRepository(),
+      pointsRepository = PostgresPointsRepository()
+    )(xa)
 
   override def run(args: List[String]): IO[ExitCode] = {
     val userId = UUID.randomUUID()
