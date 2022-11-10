@@ -29,14 +29,8 @@ object Main extends IOApp {
   override def run(args: List[String]): IO[ExitCode] = {
     val userId = UUID.randomUUID()
     println(s"userId = $userId")
-
-    IO
-      .parReplicateAN(
-        n = 4 // set parallelism degree to 4
-      )(
-        1000, // repeat 1000 times
-        accountManagementService.addFunds(userId, 10)
-      )
+    accountManagementService
+      .addFunds(userId, 10)
       .map(_ => ExitCode.Success)
   }
 }
