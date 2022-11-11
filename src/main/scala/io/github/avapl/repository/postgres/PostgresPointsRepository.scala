@@ -1,9 +1,8 @@
 package io.github.avapl.repository.postgres
 
-import cats.effect.IO
-import doobie.*
-import doobie.implicits.*
-import doobie.postgres.implicits.*
+import doobie._
+import doobie.implicits._
+import doobie.postgres.implicits._
 import io.github.avapl.repository.PointsRepository
 
 import java.util.UUID
@@ -18,14 +17,17 @@ class PostgresPointsRepository extends PointsRepository[ConnectionIO] {
       .query[Int]
       .option
 
-  override def incrementPoints(userId: UUID): ConnectionIO[Unit] = 
+  override def incrementPoints(userId: UUID): ConnectionIO[Unit] =
     for {
       currentPoints <- getPointsConnectionIO(userId)
       newPoints = currentPoints.getOrElse(0) + 1
       _ <- setPointsConnectionIO(userId, newPoints)
     } yield ()
 
-  private def setPointsConnectionIO(userId: UUID, points: Int): ConnectionIO[Int] =
+  private def setPointsConnectionIO(
+      userId: UUID,
+      points: Int
+  ): ConnectionIO[Int] =
     sql"""
       insert into points values ($userId, $points)
       on conflict (user_id)

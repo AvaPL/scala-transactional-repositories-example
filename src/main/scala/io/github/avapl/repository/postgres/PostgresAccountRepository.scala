@@ -1,9 +1,8 @@
 package io.github.avapl.repository.postgres
 
-import cats.effect.IO
-import doobie.*
-import doobie.implicits.*
-import doobie.postgres.implicits.*
+import doobie._
+import doobie.implicits._
+import doobie.postgres.implicits._
 import io.github.avapl.repository.AccountRepository
 
 import java.util.UUID
@@ -25,7 +24,10 @@ class PostgresAccountRepository extends AccountRepository[ConnectionIO] {
       _ <- setBalanceConnectionIO(userId, newBalance)
     } yield ()
 
-  private def setBalanceConnectionIO(userId: UUID, balance: Int): ConnectionIO[Int] =
+  private def setBalanceConnectionIO(
+      userId: UUID,
+      balance: Int
+  ): ConnectionIO[Int] =
     sql"""
       insert into account values ($userId, $balance)
       on conflict (user_id)

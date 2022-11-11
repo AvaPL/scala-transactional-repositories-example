@@ -2,13 +2,12 @@ package io.github.avapl
 
 import cats.effect.{ExitCode, IO, IOApp}
 import cats.~>
-import doobie.*
-import doobie.implicits.*
+import doobie._
+import doobie.implicits._
 import io.github.avapl.repository.postgres.{PostgresAccountRepository, PostgresPointsRepository}
 import io.github.avapl.service.AccountManagementService
 
 import java.util.UUID
-import scala.util.Random
 
 object Main extends IOApp {
 
@@ -18,13 +17,14 @@ object Main extends IOApp {
     user = "postgres",
     pass = "example"
   )
-  given (ConnectionIO ~> IO) with
+  implicit val transactor: ConnectionIO ~> IO = new (ConnectionIO ~> IO) {
     def apply[A](connectionIO: ConnectionIO[A]): IO[A] = connectionIO.transact(xa)
+  }
 
   val accountManagementService: AccountManagementService[ConnectionIO, IO] =
-    AccountManagementService(
-      accountRepository = PostgresAccountRepository(),
-      pointsRepository = PostgresPointsRepository()
+    new AccountManagementService(
+      accountRepository = new PostgresAccountRepository(),
+      pointsRepository = new PostgresPointsRepository()
     )
 
   override def run(args: List[String]): IO[ExitCode] = {
