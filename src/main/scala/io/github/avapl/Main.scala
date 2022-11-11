@@ -20,6 +20,7 @@ object Main extends IOApp {
   )
   given (ConnectionIO ~> IO) with
     def apply[A](connectionIO: ConnectionIO[A]): IO[A] = connectionIO.transact(xa)
+
   val accountManagementService: AccountManagementService[ConnectionIO, IO] =
     AccountManagementService(
       accountRepository = PostgresAccountRepository(),
