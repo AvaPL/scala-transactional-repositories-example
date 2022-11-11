@@ -18,8 +18,8 @@ object Main extends IOApp {
     user = "postgres",
     pass = "example"
   )
-  given (ConnectionIO ~> IO) =
-    override def apply[A](connectionIO: ConnectionIO[A]): IO[A] = connectionIO.transact(xa)
+  given (ConnectionIO ~> IO) with
+    def apply[A](connectionIO: ConnectionIO[A]): IO[A] = connectionIO.transact(xa)
   val accountManagementService: AccountManagementService[ConnectionIO, IO] =
     AccountManagementService(
       accountRepository = PostgresAccountRepository(),
