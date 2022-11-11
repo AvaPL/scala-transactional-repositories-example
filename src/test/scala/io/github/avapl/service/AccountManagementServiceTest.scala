@@ -15,6 +15,7 @@ class AccountManagementServiceTest extends AnyWordSpec with Matchers {
       "call the account repository with the amount and increment points in the points repository" in {
         val testUserId = UUID.randomUUID()
         val testAmountToAdd = 123
+
         val accountRepository = new AccountRepository[Id] {
           def addFunds(userId: UUID, amountToAdd: Int): Unit = {
             userId shouldBe testUserId
@@ -32,7 +33,6 @@ class AccountManagementServiceTest extends AnyWordSpec with Matchers {
 
           def getPoints(userId: UUID): Option[Int] = ???
         }
-
         given (Id ~> Id) = FunctionK.id[Id]
 
         val accountManagementService =
