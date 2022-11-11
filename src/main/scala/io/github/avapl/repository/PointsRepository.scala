@@ -1,13 +1,10 @@
 package io.github.avapl.repository
 
-import cats.effect.IO
-
 import java.util.UUID
-import doobie.ConnectionIO
 
-trait PointsRepository {
+trait PointsRepository[F[_]] {
 
-  def getPoints(userId: UUID): ConnectionIO[Option[Int]]
+  def getPoints(userId: UUID): F[Option[Int]]
 
-  def incrementPoints(userId: UUID): ConnectionIO[Unit]
+  def incrementPoints(userId: UUID): F[Unit]
 }

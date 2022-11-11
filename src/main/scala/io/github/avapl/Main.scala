@@ -1,12 +1,10 @@
 package io.github.avapl
 
-import cats.Parallel
 import cats.effect.{ExitCode, IO, IOApp}
-import doobie.Transactor
-import io.github.avapl.repository.postgres.{
-  PostgresAccountRepository,
-  PostgresPointsRepository
-}
+import cats.~>
+import doobie.*
+import doobie.implicits.*
+import io.github.avapl.repository.postgres.{PostgresAccountRepository, PostgresPointsRepository}
 import io.github.avapl.service.AccountManagementService
 
 import java.util.UUID
@@ -20,11 +18,13 @@ object Main extends IOApp {
     user = "postgres",
     pass = "example"
   )
-  val accountManagementService: AccountManagementService =
+  given (ConnectionIO ~> IO) =
+    override def apply[A](connectionIO: ConnectionIO[A]): IO[A] = connectionIO.transact(xa)
+  val accountManagementService: AccountManagementService[ConnectionIO, IO] =
     AccountManagementService(
       accountRepository = PostgresAccountRepository(),
       pointsRepository = PostgresPointsRepository()
-    )(xa)
+    )
 
   override def run(args: List[String]): IO[ExitCode] = {
     val userId = UUID.randomUUID()

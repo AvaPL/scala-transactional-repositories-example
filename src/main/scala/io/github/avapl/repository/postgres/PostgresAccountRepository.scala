@@ -8,7 +8,7 @@ import io.github.avapl.repository.AccountRepository
 
 import java.util.UUID
 
-class PostgresAccountRepository extends AccountRepository {
+class PostgresAccountRepository extends AccountRepository[ConnectionIO] {
 
   override def getBalance(userId: UUID): ConnectionIO[Option[Int]] =
     getBalanceConnectionIO(userId)

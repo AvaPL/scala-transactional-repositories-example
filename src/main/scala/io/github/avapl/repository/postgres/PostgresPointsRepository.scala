@@ -8,7 +8,7 @@ import io.github.avapl.repository.PointsRepository
 
 import java.util.UUID
 
-class PostgresPointsRepository extends PointsRepository {
+class PostgresPointsRepository extends PointsRepository[ConnectionIO] {
 
   override def getPoints(userId: UUID): ConnectionIO[Option[Int]] =
     getPointsConnectionIO(userId)
